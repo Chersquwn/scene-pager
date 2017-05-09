@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="keywords" content="" />
+    <meta http-equiv="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>scene-pager demo</title>
+    <style>
+      html,body{
+        margin:0;
+        padding:0;
+      }
+      .carousel {
+        margin: 0 auto;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .nav {
+        position: absolute;
+        bottom: 6px;
+        right: 10px;
+      }
+
+      .nav a {
+        display: inline-block;
+        background-color: white;
+        cursor: pointer;
+        width: 6px;
+        height: 4px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        border: 1px solid #808080;
+        transition: all .2s ease;
+      }
+
+
+      .nav a.active {
+        background-color: #ffd800;
+        width: 10px;
+      }
+
+      .carousel-scroller {
+        position: relative;
+        font-size: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="carousel-container1" style="position: relative">
+      <div class="carousel carousel1">
+        <div style="position:relative;width: 100%;padding-bottom:56.25%" class="carousel-scroller carousel-scroller1" id="carousel-scroller1">
+          <img style="position:absolute;width: 100%;height:100%;left:0;" src="./imgs/1.jpg">
+          <img style="position:absolute;width: 100%;height:100%;left:100%;" src="./imgs/2.jpg">
+          <img style="position:absolute;width: 100%;height:100%;left:200%;" src="./imgs/3.jpg">
+          <img style="position:absolute;width: 100%;height:100%;left:300%;" src="./imgs/4.jpg">
+          <img style="position:absolute;width: 100%;height:100%;left:400%;" src="./imgs/5.jpg">
+        </div>
+      </div>
+      <div class="nav" id="nav1">
+        <a data-index="0" class="active"></a>
+        <a data-index="1" class=" "></a>
+        <a data-index="2" class=" "></a>
+        <a data-index="3" class=" "></a>
+        <a data-index="4" class=" "></a>
+      </div>
+    </div>
+
+    <script src="../dist/scene-pager.js"></script>
+    <script>
+      var ScenePager = ScenePager.default
+      var items1 = document.querySelector('#nav1').querySelectorAll('a')
+      var sp1 = new ScenePager({
+        touchEl: '.carousel',
+        moveEl: '.carousel-scroller',
+        items: '.carousel-scroller img',
+        autorun: true,
+        animationEnd: function(e) {
+          for (var i = 0; i < items1.length; i++) {
+            if (i === e.index) {
+                items1[i].classList.add('active')
+            } else {
+                items1[i].classList.remove('active')
+            }
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
