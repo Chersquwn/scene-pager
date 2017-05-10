@@ -1,10 +1,15 @@
 # scene-pager
 A javascript library for carousel，view-pager or H5 slide-show.
 
+## Demo
+[https://chersquwn.github.io/scene-pager/](https://chersquwn.github.io/scene-pager/)
+
 ## Install
+```
 npm install scene-pager
 // or
 yarn add scene-pager
+```
 
 ## Usage
 ```javascript
@@ -64,6 +69,11 @@ new ScenePager({
 
   },
 
+  // 动画开始之前的回调
+  animationEnd: function(e) {
+
+  },
+
   // 动画完成的回调
   animationEnd: function(e) {
 
@@ -71,8 +81,19 @@ new ScenePager({
 })
 ```
 
-`to(index)`
+`to(index, animate)`
 - 跳转到某一个页面
+- index: `Number`
+- animate: `Boolean`，是否启用动画效果，默认为true
+
+`event事件对象`
+- `event.prevIndex`: 上一页的序号
+- `event.index`: 当前页的序号
+- `event.startX`: 触摸开始位置的x坐标
+- `event.startY`: 触摸开始位置的y坐标
+- `event.x`: 当前触摸位置的x坐标
+- `event.y`: 当前触摸位置的y坐标
+- `event.currentPos`: 当前移动元素的位置
 
 ## TODO
 - 完善各阶段回调函数的调用，以及事件对象

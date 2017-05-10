@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="keywords" content="" />
+    <meta http-equiv="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>scene-pager demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      ul {
+        list-style: none;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .tab {
+        position: relative;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+      }
+      .tab-list {
+        display: flex;
+      }
+      .tab-list-item {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+      }
+      .tab-list-item.active {
+        color: #007fff;
+      }
+      .line {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 25%;
+        height: 2px;
+        background-color: #007fff;
+      }
+      .view-touch {
+        flex: 1;
+        height: 100%;
+        overflow: hidden;
+      }
+      .view-list {
+        display: flex;
+        width: 400%;
+        height: 100%;
+      }
+      .view-list-item {
+        width: 25%;
+        height: 100%;
+        overflow: auto;
+      }
+      .view-list-item {
+        font-size: 24px;
+      }
+      .view-content {
+        padding: 10px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="tab">
+        <ul class="tab-list">
+          <li class="tab-list-item active">
+            tab1
+          </li>
+          <li class="tab-list-item">
+            tab2
+          </li>
+          <li class="tab-list-item">
+            tab3
+          </li>
+          <li class="tab-list-item">
+            tab4
+          </li>
+        </ul>
+        <span class="line"></span>
+      </nav>
+      <div class="view-touch">
+        <ul class="view-list">
+          <li class="view-list-item item1">
+            <div class="view-content">
+              <p>
+                This is view 1.
+              </p>
+            </div>
+          </li>
+          <li class="view-list-item item2">
+            <div class="view-content">
+              <p>
+                This is view 2.
+              </p>
+            </div>
+          </li>
+          <li class="view-list-item item3">
+            <div class="view-content">
+              <p>
+                This is view 3.
+              </p>
+            </div>
+          </li>
+          <li class="view-list-item item4">
+            <div class="view-content">
+              <p>
+                This is view 4.
+              </p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </main>
+
+    <script src="./scene-pager.js"></script>
+    <script>
+      var ScenePager = ScenePager.default
+      var items = document.querySelectorAll('.view-list-item')
+      var tabItems = document.querySelectorAll('.tab-list-item')
+      var line = document.querySelector('.line')
+      var sp = new ScenePager({
+        touchEl: '.view-touch',
+        moveEl: '.view-list',
+        items: '.view-list-item',
+        touchMove: function(e) {
+          var dx = e.x - e.startX
+          if ((e.index <= 0 && dx > 0) || (e.index >= items.length - 1 && dx < 0)) return
+          line.style.transform = 'translateX(' + (-e.currentPos / 4) + 'px)'
+        },
+        touchEnd: function(e) {
+          line.style.transform = 'translateX(' + (e.index * 100) + '%)'
+          line.style.transition = 'transform .2s ease'
+        },
+        animationEnd: function(e) {
+          for (let i = 0; i < this.items.length; i++) {
+            if (i !== e.index) {
+              tabItems[i].classList.remove('active')
+              this.items[i].classList.remove('view-active')
+            } else {
+              tabItems[i].classList.add('active')
+              this.items[i].classList.add('view-active')
+            }
+          }
+          line.style.transition = ''
+        }
+      })
+
+      for (var i = 0; i < items.length; i++) {
+        (function(i) {
+          tabItems[i].addEventListener('touchend', function() {
+            for (var j = 0; j < items.length; j++) {
+              tabItems[j].classList.remove('active')
+            }
+            tabItems[i].classList.add('active')
+            sp.to(i, false)
+            line.style.transform = 'translateX(' + (i * 100) + '%)'
+          })
+        })(i)
+      }
+    </script>
+  </body>
+</html>

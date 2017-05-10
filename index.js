@@ -26,8 +26,11 @@ export default class ScenePager {
     touchEnd = function() {
 
     },
+    animationStart = function() {
+      this.animating = true
+    },
     animationEnd = function() {
-
+      this.animating = false
     }
   }) {
     this.touchEl = document.querySelector(touchEl)
@@ -43,10 +46,12 @@ export default class ScenePager {
     this.touchStart = touchStart
     this.touchMove = touchMove
     this.touchEnd = touchEnd
+    this.animationStart = animationStart
     this.animationEnd = animationEnd
 
     this.currentPos = 0
     this.index = 0
+    this.prevIndex = 0
     this.length = this.items.length
     this.animating = false
     this.running = false
@@ -77,8 +82,8 @@ export default class ScenePager {
     this.isFirstMove = true
     this.stop()
 
-    e.x = this.x1
-    e.y = this.y1
+    e.startX = this.x1
+    e.startY = this.y1
     e.index = this.index
     this.touchStart(e)
   }
@@ -120,9 +125,13 @@ export default class ScenePager {
       this.currentPos += delta
       this.x2 = x
       this.y2 = y
+      e.startX = this.x1
+      e.startY = this.y1
       e.x = this.x2
       e.y = this.y2
       e.index = this.index
+      e.prevIndex = this.prevIndex
+      e.currentPos = this.currentPos
       this.translateTo(this.currentPos)
       this.touchMove(e)
     }
@@ -169,7 +178,7 @@ export default class ScenePager {
     `translate3d(0, ${pos}px, 0)`
   }
 
-  to(index) {
+  to(index, animate = true) {
     const self = this
     const timestamp = Date.now()
     const step = index - this.index
@@ -178,29 +187,39 @@ export default class ScenePager {
     const ds = end - start
 
     this.animating = true
-    this.index = index
-    self.event.index = index
+    this.event.prevIndex = this.prevIndex = this.index
+    this.event.index = this.index = index
 
-    ;(function animate() {
-      const dt = Date.now() - timestamp
+    if (animate) {
+      this.animationStart(this.event)
 
-      if (dt >= self.speed) {
-        self.animationEnd(self.event)
-        self.animating = false
-        if (self.autorun && !self.running) {
-          self.run()
+      ;(function animate() {
+        const dt = Date.now() - timestamp
+
+        if (dt >= self.speed) {
+          if (self.event.index !== self.event.prevIndex) {
+            self.animationEnd(self.event)
+          }
+          self.animating = false
+          if (self.autorun && !self.running) {
+            self.run()
+          }
+          return
+        } else {
+          self.currentPos = ds * self.easing(dt / self.speed) + start
+          if (Math.abs(dt - self.speed) < 20) {
+            self.currentPos = end
+          }
         }
-        return
-      } else {
-        self.currentPos = ds * self.easing(dt / self.speed) + start
-        if (Math.abs(dt - self.speed) < 20) {
-          self.currentPos = end
-        }
-      }
-      
+
+        self.translateTo(self.currentPos)
+        self.raf = requestAnimationFrame(animate)
+      })()
+    } else {
+      self.currentPos = end
       self.translateTo(self.currentPos)
-      self.raf = requestAnimationFrame(animate)
-    })()
+    }
+    
   }
 
   stop() {

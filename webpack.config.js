@@ -41,4 +41,6 @@ if (process.env.NODE_ENV.trim() === 'production') {
       }
     })
   )
+} else {
+  module.exports.output.path = path.resolve(__dirname, 'demo')
 }
