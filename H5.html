@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="keywords" content="" />
+    <meta http-equiv="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>scene-pager demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      ul {
+        list-style: none;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      .scene-touch {
+        height: 100%;
+        overflow: hidden;
+      }
+      .scene-list {
+        height: 400%;
+      }
+      .scene-list-item {
+        height: 25%;
+        text-align: center;
+      }
+      .scene-list-item {
+        font-size: 24px;
+        color: #fff;
+      }
+      .item1 {
+        background: url("./imgs/h5-1.jpg") center no-repeat;
+        background-size: cover;
+      }
+      .item1 p {
+        transform: translate(0, 300px);
+      }
+      .item2 {
+        background: url("./imgs/h5-2.jpg") center no-repeat;
+        background-size: cover;
+      }
+      .item2 p {
+        transform: translate(0, 900px) scale(0);
+      }
+      .item2.animate p {
+        transform: translate(0, 300px) scale(1);
+        transition: transform .8s ease;
+      }
+      .item3 {
+        background: url("./imgs/h5-3.jpg") center no-repeat;
+        background-size: cover;
+      }
+      .item3 p {
+        transform: translate(0, 300px) rotate(-720deg);
+      }
+      .item3.animate p {
+        transform: translate(0, 300px) rotate(0);
+        transition: transform 1.2s ease;
+      }
+      .item4 {
+        background: url("./imgs/h5-4.jpg") center no-repeat;
+        background-size: cover;
+      }
+      .item4 p {
+        transform: translate(400px, 900px) scale(1);
+      }
+      .item4.animate p {
+        transform: translate(0, 300px) scale(1);
+        transition: transform .8s cubic-bezier(.61,.01,.53,1.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scene-touch">
+      <ul class="scene-list">
+        <li class="scene-list-item item1">
+          <p>
+            This is page 1.
+          </p>
+        </li>
+        <li class="scene-list-item item2">
+          <p>
+            This is page 2.
+          </p>
+        </li>
+        <li class="scene-list-item item3">
+          <p>
+            This is page 3.
+          </p>
+        </li>
+        <li class="scene-list-item item4">
+          <p>
+            This is the last page.
+          </p>
+        </li>
+      </ul>
+    </div>
+
+    <script src="./scene-pager.js"></script>
+    <script>
+      var ScenePager = ScenePager.default
+      var items = document.querySelectorAll('.scene-list-item')
+      var sp = new ScenePager({
+        touchEl: '.scene-touch',
+        moveEl: '.scene-list',
+        items: '.scene-list-item',
+        direction: 'vertical',
+        animationEnd: function(e) {
+          for (let i = 0; i < this.items.length; i++) {
+            if (i !== e.index) {
+              this.items[i].classList.remove('scene-active')
+            } else {
+              this.items[i].classList.add('scene-active')
+            }
+          }
+
+          if (e.index > e.prevIndex) {
+            this.items[e.index].classList.add('animate')
+          } else {
+            this.items[e.prevIndex].classList.remove('animate')
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
