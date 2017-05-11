@@ -70,7 +70,7 @@ new ScenePager({
   },
 
   // 动画开始之前的回调
-  animationEnd: function(e) {
+  animationStart: function(e) {
 
   },
 
