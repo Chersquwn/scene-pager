@@ -27,10 +27,10 @@ export default class ScenePager {
 
     },
     animationStart = function() {
-      this.animating = true
+      
     },
     animationEnd = function() {
-      this.animating = false
+      
     }
   }) {
     this.touchEl = document.querySelector(touchEl)
@@ -58,6 +58,7 @@ export default class ScenePager {
     this.event = {}
     this.raf = null
     this.interval = null
+    this.queue = []
 
     const rect = this.touchEl.getBoundingClientRect()
 
@@ -72,6 +73,18 @@ export default class ScenePager {
     this.touchEl.addEventListener('touchend', this.end.bind(this))
 
     this.autorun && this.run()
+
+    if (this.loop) {
+      for (let i = 0; i < this.length; i++) {
+        if (i === this.length - 1) {
+          this.queue.push(-1)
+        } else {
+          this.queue.push(i)
+        }
+      }
+
+      this.adjustPosition()
+    }
   }
 
   start(e) {
@@ -155,9 +168,9 @@ export default class ScenePager {
         }
       } else {
         if (delta >= bounceRange) {
-          toIndex = this.index - 1
+          toIndex = (this.index - 1 + this.length) % this.length
         } else if (delta <= -bounceRange) {
-          toIndex = this.index + 1
+          toIndex = (this.index + 1 + this.length) % this.length
         }
       }
 
@@ -185,8 +198,13 @@ export default class ScenePager {
   to(index, animate = true) {
     const self = this
     const timestamp = Date.now()
-    const step = index - this.index
-    const end = -index * this.rectValue
+    let step = index - this.index
+    if (step <= -(this.length - 1)) {
+      step = step + this.length
+    } else if (step >= this.length - 1) {
+      step = step - this.length
+    }
+    const end = this.loop ? -step * this.rectValue : -index * this.rectValue
     const start = this.currentPos
     const ds = end - start
 
@@ -202,9 +220,14 @@ export default class ScenePager {
 
         if (dt >= self.speed) {
           if (self.event.index !== self.event.prevIndex) {
+            if (self.loop) {
+              step > 0 ? self.queue.unshift(self.queue.pop()) : self.queue.push(self.queue.shift())
+              self.adjustPosition()
+              self.currentPos = 0
+              self.translateTo(self.currentPos)
+            }
             self.animationEnd(self.event)
           }
-          self.animating = false
           if (self.autorun && !self.running) {
             self.run()
           }
@@ -228,11 +251,11 @@ export default class ScenePager {
 
   stop() {
     clearInterval(this.interval)
-    cancelAnimationFrame(this.raf)
+    !this.loop && cancelAnimationFrame(this.raf)
     this.running = false
     this.event.prevIndex = this.prevIndex
     this.event.index = this.index
-    this.animationEnd(this.event)
+    this.animating && this.animationEnd(this.event)
   }
 
   run() {
@@ -240,6 +263,16 @@ export default class ScenePager {
     this.interval = setInterval(() => {
       this.to((this.index + 1) % this.length)
     }, this.duration)
+  }
+
+  adjustPosition() {
+    this.queue.forEach((item, i) => {
+      this.items[i].style.transform = 
+      this.items[i].style.webkitTransform = 
+      this.direction ? 
+      `translate3d(${item * this.rectValue}px, 0, 0)` :
+      `translate3d(0, ${item * this.rectValue}px, 0)`
+    })
   }
 
 }
