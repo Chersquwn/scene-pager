@@ -112,16 +112,16 @@
           </div>
         </div>
       </section>
-      <!--<section>
+      <section>
         <h2>loop = true</h2>
         <div style="position: relative">
           <div class="carousel carousel3">
             <div style="position:relative;width: 100%;padding-bottom:56.25%" class="carousel-scroller">
               <img style="position:absolute;width: 100%;height:100%;left:0;" src="./imgs/1.jpg">
-              <img style="position:absolute;width: 100%;height:100%;left:100%;" src="./imgs/2.jpg">
-              <img style="position:absolute;width: 100%;height:100%;left:200%;" src="./imgs/3.jpg">
-              <img style="position:absolute;width: 100%;height:100%;left:300%;" src="./imgs/4.jpg">
-              <img style="position:absolute;width: 100%;height:100%;left:400%;" src="./imgs/5.jpg">
+              <img style="position:absolute;width: 100%;height:100%;left:0;" src="./imgs/2.jpg">
+              <img style="position:absolute;width: 100%;height:100%;left:0;" src="./imgs/3.jpg">
+              <img style="position:absolute;width: 100%;height:100%;left:0;" src="./imgs/4.jpg">
+              <img style="position:absolute;width: 100%;height:100%;left:0;" src="./imgs/5.jpg">
             </div>
           </div>
           <div class="nav nav3">
@@ -132,7 +132,7 @@
             <a data-index="4" class=" "></a>
           </div>
         </div>
-      </section>-->
+      </section>
     </main>
 
     <script src="./scene-pager.js"></script>
@@ -171,23 +171,23 @@
           }
         }
       })
-      // var items3 = document.querySelector('.nav3').querySelectorAll('a')
-      // var sp = new ScenePager({
-      //   touchEl: '.carousel3',
-      //   moveEl: '.carousel3 .carousel-scroller',
-      //   items: '.carousel3 .carousel-scroller img',
-      //   autorun: true,
-      //   loop: true,
-      //   animationEnd: function(e) {
-      //     for (var i = 0; i < items3.length; i++) {
-      //       if (i === e.index) {
-      //           items3[i].classList.add('active')
-      //       } else {
-      //           items3[i].classList.remove('active')
-      //       }
-      //     }
-      //   }
-      // })
+      var items3 = document.querySelector('.nav3').querySelectorAll('a')
+      var sp = new ScenePager({
+        touchEl: '.carousel3',
+        moveEl: '.carousel3 .carousel-scroller',
+        items: '.carousel3 .carousel-scroller img',
+        autorun: true,
+        loop: true,
+        animationEnd: function(e) {
+          for (var i = 0; i < items3.length; i++) {
+            if (i === e.index) {
+                items3[i].classList.add('active')
+            } else {
+                items3[i].classList.remove('active')
+            }
+          }
+        }
+      })
     </script>
   </body>
 </html>

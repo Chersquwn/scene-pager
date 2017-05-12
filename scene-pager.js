@@ -123,13 +123,9 @@ var ScenePager = function () {
         _ref$touchEnd = _ref.touchEnd,
         touchEnd = _ref$touchEnd === undefined ? function () {} : _ref$touchEnd,
         _ref$animationStart = _ref.animationStart,
-        animationStart = _ref$animationStart === undefined ? function () {
-      this.animating = true;
-    } : _ref$animationStart,
+        animationStart = _ref$animationStart === undefined ? function () {} : _ref$animationStart,
         _ref$animationEnd = _ref.animationEnd,
-        animationEnd = _ref$animationEnd === undefined ? function () {
-      this.animating = false;
-    } : _ref$animationEnd;
+        animationEnd = _ref$animationEnd === undefined ? function () {} : _ref$animationEnd;
 
     _classCallCheck(this, ScenePager);
 
@@ -158,6 +154,7 @@ var ScenePager = function () {
     this.event = {};
     this.raf = null;
     this.interval = null;
+    this.queue = [];
 
     var rect = this.touchEl.getBoundingClientRect();
 
@@ -170,6 +167,18 @@ var ScenePager = function () {
     this.touchEl.addEventListener('touchend', this.end.bind(this));
 
     this.autorun && this.run();
+
+    if (this.loop) {
+      for (var i = 0; i < this.length; i++) {
+        if (i === this.length - 1) {
+          this.queue.push(-1);
+        } else {
+          this.queue.push(i);
+        }
+      }
+
+      this.adjustPosition();
+    }
   }
 
   _createClass(ScenePager, [{
@@ -257,9 +266,9 @@ var ScenePager = function () {
           }
         } else {
           if (delta >= bounceRange) {
-            toIndex = this.index - 1;
+            toIndex = (this.index - 1 + this.length) % this.length;
           } else if (delta <= -bounceRange) {
-            toIndex = this.index + 1;
+            toIndex = (this.index + 1 + this.length) % this.length;
           }
         }
 
@@ -288,7 +297,12 @@ var ScenePager = function () {
       var self = this;
       var timestamp = Date.now();
       var step = index - this.index;
-      var end = -index * this.rectValue;
+      if (step <= -(this.length - 1)) {
+        step = step + this.length;
+      } else if (step >= this.length - 1) {
+        step = step - this.length;
+      }
+      var end = this.loop ? -step * this.rectValue : -index * this.rectValue;
       var start = this.currentPos;
       var ds = end - start;
 
@@ -302,9 +316,14 @@ var ScenePager = function () {
 
           if (dt >= self.speed) {
             if (self.event.index !== self.event.prevIndex) {
+              if (self.loop) {
+                step > 0 ? self.queue.unshift(self.queue.pop()) : self.queue.push(self.queue.shift());
+                self.adjustPosition();
+                self.currentPos = 0;
+                self.translateTo(self.currentPos);
+              }
               self.animationEnd(self.event);
             }
-            self.animating = false;
             if (self.autorun && !self.running) {
               self.run();
             }
@@ -328,11 +347,11 @@ var ScenePager = function () {
     key: 'stop',
     value: function stop() {
       clearInterval(this.interval);
-      cancelAnimationFrame(this.raf);
+      !this.loop && cancelAnimationFrame(this.raf);
       this.running = false;
       this.event.prevIndex = this.prevIndex;
       this.event.index = this.index;
-      this.animationEnd(this.event);
+      this.animating && this.animationEnd(this.event);
     }
   }, {
     key: 'run',
@@ -343,6 +362,15 @@ var ScenePager = function () {
       this.interval = setInterval(function () {
         _this.to((_this.index + 1) % _this.length);
       }, this.duration);
+    }
+  }, {
+    key: 'adjustPosition',
+    value: function adjustPosition() {
+      var _this2 = this;
+
+      this.queue.forEach(function (item, i) {
+        _this2.items[i].style.transform = _this2.items[i].style.webkitTransform = _this2.direction ? 'translate3d(' + item * _this2.rectValue + 'px, 0, 0)' : 'translate3d(0, ' + item * _this2.rectValue + 'px, 0)';
+      });
     }
   }]);
 
