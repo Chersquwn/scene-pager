@@ -1,8 +1,8 @@
 {
   "name": "scene-pager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A javascript library for carousel，view-pager or H5 slide-show.",
-  "main": "index.js",
+  "main": "./dist/scene-pager.js",
   "repository": {
     "url": "https://github.com/Chersquwn/scene-pager"
   },

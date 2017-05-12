@@ -1,6 +1,6 @@
 const tween = {
   ease(x) {
-    return Math.sqrt(1 - Math.pow(x - 1, 2));
+    return Math.sqrt(1 - Math.pow(x - 1, 2))
   }
 }
 
@@ -64,14 +64,14 @@ export default class ScenePager {
     this.rectValue = this.direction ? 
       rect.right - rect.left :
       rect.bottom - rect.top
+    this.lower = -(this.length - 1) * this.rectValue
+    this.upper = 0
 
     this.touchEl.addEventListener('touchstart', this.start.bind(this))
     this.touchEl.addEventListener('touchmove', this.move.bind(this))
     this.touchEl.addEventListener('touchend', this.end.bind(this))
 
-    if (this.autorun) {
-      this.run()
-    }
+    this.autorun && this.run()
   }
 
   start(e) {
@@ -113,7 +113,7 @@ export default class ScenePager {
       let delta = this.direction ? dx : dy
 
       if (!this.loop) {
-        if ((this.currentPos >= 0 && delta > 0) || (this.currentPos <= -(this.length - 1) * this.rectValue) && delta < 0) {
+        if ((this.currentPos >= this.upper && delta > 0) || (this.currentPos <= this.lower) && delta < 0) {
           if (this.bounce) {
             delta *= 0.2
           } else {
@@ -146,7 +146,7 @@ export default class ScenePager {
       let toIndex = this.index
 
       if (!this.loop) {
-        if (this.currentPos < 0 && this.currentPos > -(this.length - 1) * this.rectValue) {
+        if (this.currentPos < this.upper && this.currentPos > this.lower) {
           if (delta >= bounceRange) {
             toIndex = this.index - 1
           } else if (delta <= -bounceRange) {
@@ -161,9 +161,13 @@ export default class ScenePager {
         }
       }
 
+      e.startX = this.x1
+      e.startY = this.y1
       e.x = this.x2
       e.y = this.y2
       e.index = toIndex
+      e.prevIndex = this.prevIndex
+      e.currentPos = this.currentPos
 
       this.touchEnd(e)
       this.to(toIndex)
@@ -226,6 +230,9 @@ export default class ScenePager {
     clearInterval(this.interval)
     cancelAnimationFrame(this.raf)
     this.running = false
+    this.event.prevIndex = this.prevIndex
+    this.event.index = this.index
+    this.animationEnd(this.event)
   }
 
   run() {

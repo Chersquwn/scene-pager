@@ -162,14 +162,14 @@ var ScenePager = function () {
     var rect = this.touchEl.getBoundingClientRect();
 
     this.rectValue = this.direction ? rect.right - rect.left : rect.bottom - rect.top;
+    this.lower = -(this.length - 1) * this.rectValue;
+    this.upper = 0;
 
     this.touchEl.addEventListener('touchstart', this.start.bind(this));
     this.touchEl.addEventListener('touchmove', this.move.bind(this));
     this.touchEl.addEventListener('touchend', this.end.bind(this));
 
-    if (this.autorun) {
-      this.run();
-    }
+    this.autorun && this.run();
   }
 
   _createClass(ScenePager, [{
@@ -214,7 +214,7 @@ var ScenePager = function () {
         var delta = this.direction ? dx : dy;
 
         if (!this.loop) {
-          if (this.currentPos >= 0 && delta > 0 || this.currentPos <= -(this.length - 1) * this.rectValue && delta < 0) {
+          if (this.currentPos >= this.upper && delta > 0 || this.currentPos <= this.lower && delta < 0) {
             if (this.bounce) {
               delta *= 0.2;
             } else {
@@ -248,7 +248,7 @@ var ScenePager = function () {
         var toIndex = this.index;
 
         if (!this.loop) {
-          if (this.currentPos < 0 && this.currentPos > -(this.length - 1) * this.rectValue) {
+          if (this.currentPos < this.upper && this.currentPos > this.lower) {
             if (delta >= bounceRange) {
               toIndex = this.index - 1;
             } else if (delta <= -bounceRange) {
@@ -263,9 +263,13 @@ var ScenePager = function () {
           }
         }
 
+        e.startX = this.x1;
+        e.startY = this.y1;
         e.x = this.x2;
         e.y = this.y2;
         e.index = toIndex;
+        e.prevIndex = this.prevIndex;
+        e.currentPos = this.currentPos;
 
         this.touchEnd(e);
         this.to(toIndex);
@@ -326,6 +330,9 @@ var ScenePager = function () {
       clearInterval(this.interval);
       cancelAnimationFrame(this.raf);
       this.running = false;
+      this.event.prevIndex = this.prevIndex;
+      this.event.index = this.index;
+      this.animationEnd(this.event);
     }
   }, {
     key: 'run',
